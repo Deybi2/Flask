@@ -14,13 +14,22 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        repassword = request.form['re-password']
+        gmail = request.form['gmail']
+
         db = get_db()
         error = None
 
         if not username:
-            error = 'Username is required.'
+            error = 'Nombre de usuario requerido.'
         elif not password:
-            error = 'Password is required.'
+            error = 'Contraseña requerida.'
+        elif not repassword:
+            error = 'Verificacion es requerida.'
+        elif not gmail:
+            error = 'Gmail requerida.'
+        elif password != repassword:
+            error = "Las contraseñas no coinciden."
 
         if error is None:
             try:
@@ -30,7 +39,7 @@ def register():
                 )
                 db.commit()
             except db.IntegrityError:
-                error = f"User {username} is already registered."
+                error = f"El usuario {username} ya esta registrado."
             else:
                 return redirect(url_for("auth.login"))
 
@@ -50,9 +59,9 @@ def login():
         ).fetchone()
 
         if user is None:
-            error = 'Nombre de usuario incorrecto.'
+            error = 'Usuario incorrecto.'
         elif not check_password_hash(user['password'], password):
-            error = 'Nombre de usuario incorrecto.'
+            error = 'Contraseña incorrecta.'
 
         if error is None:
             session.clear()
